@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  blog-post-api:
+    container_name: blog-post-api
+    image: blog-post-api-image
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://postgres:docker@postgres:5432/db_blog_post?schema=public
+    networks:
+      - blog-post-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: blog-post-postgres
+    image: postgres:16
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=docker
+    networks:
+      - blog-post-network
+    restart: unless-stopped
+
+networks:
+  blog-post-network:
+    driver: bridge

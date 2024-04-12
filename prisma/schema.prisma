@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @db.Uuid
+  fullName      String    @db.VarChar
+  email         String?   @unique @db.VarChar
+  phone         String?   @unique @db.VarChar
+  role          String    @db.VarChar
+  password      String    @db.VarChar
+  token         String?   @unique @db.VarChar
+  createdAt     DateTime  @db.Timestamp(6)
+  createdBy     String?   @db.Uuid
+  updatedAt     DateTime? @db.Timestamp(6)
+  updatedBy     String?   @db.Uuid
+  softDeletedAt DateTime? @db.Timestamp(6)
+  softDeletedBy String?   @db.Uuid
+
+  userRelatedToCreatedBy           User?  @relation("userRelatedToCreatedByForUser", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToUpdatedBy           User?  @relation("userRelatedToUpdatedByForUser", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToSoftDeletedBy       User?  @relation("userRelatedToSoftDeletedByForUser", fields: [softDeletedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToCreatedByInUser     User[] @relation("userRelatedToCreatedByForUser")
+  userRelatedToUpdatedByInUser     User[] @relation("userRelatedToUpdatedByForUser")
+  userRelatedToSoftDeletedByInUser User[] @relation("userRelatedToSoftDeletedByForUser")
+  userRelatedToCreatedByInPost     Post[] @relation("userRelatedToCreatedByForPost")
+  userRelatedToUpdatedByInPost     Post[] @relation("userRelatedToUpdatedByForPost")
+  userRelatedToSoftDeletedByInPost Post[] @relation("userRelatedToSoftDeletedByForPost")
+  userRelatedToCreatedByInTag      Tag[]  @relation("userRelatedToCreatedByForTag")
+  userRelatedToUpdatedByInTag      Tag[]  @relation("userRelatedToUpdatedByForTag")
+  userRelatedToSoftDeletedByInTag  Tag[]  @relation("userRelatedToSoftDeletedByForTag")
+}
+
+model Post {
+  id            String    @id @db.Uuid
+  title         String    @db.VarChar
+  body          String    @db.Text
+  createdAt     DateTime  @db.Timestamp(6)
+  createdBy     String    @db.Uuid
+  updatedAt     DateTime? @db.Timestamp(6)
+  updatedBy     String?   @db.Uuid
+  softDeletedAt DateTime? @db.Timestamp(6)
+  softDeletedBy String?   @db.Uuid
+
+  userRelatedToCreatedBy     User  @relation("userRelatedToCreatedByForPost", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToUpdatedBy     User? @relation("userRelatedToUpdatedByForPost", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToSoftDeletedBy User? @relation("userRelatedToSoftDeletedByForPost", fields: [softDeletedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tagRelatedToPostIdInTag    Tag[] @relation("tagRelatedToPostIdForTag")
+}
+
+model Tag {
+  id            String    @id @db.Uuid
+  name          String    @db.VarChar
+  postId        String    @db.Uuid
+  createdAt     DateTime  @db.Timestamp(6)
+  createdBy     String    @db.Uuid
+  updatedAt     DateTime? @db.Timestamp(6)
+  updatedBy     String?   @db.Uuid
+  softDeletedAt DateTime? @db.Timestamp(6)
+  softDeletedBy String?   @db.Uuid
+
+  userRelatedToCreatedBy     User  @relation("userRelatedToCreatedByForTag", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToUpdatedBy     User? @relation("userRelatedToUpdatedByForTag", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userRelatedToSoftDeletedBy User? @relation("userRelatedToSoftDeletedByForTag", fields: [softDeletedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  postRelatedToPostId        Post  @relation("tagRelatedToPostIdForTag", fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
